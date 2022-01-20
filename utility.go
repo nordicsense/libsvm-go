@@ -67,7 +67,7 @@ func maxf(a, b float64) float64 {
 	}
 }
 
-func MapToSnode(m map[int]float64) []snode {
+func MapToSnode(m map[int]float64) []Node {
 
 	keys := make([]int, len(m))
 	var i int = 0
@@ -78,24 +78,24 @@ func MapToSnode(m map[int]float64) []snode {
 	sort.Ints(keys) // We MUST do this to ensure that we add snodes in ascending key order!
 	// Just iterating over the map does not ensure the keys are returned in ascending order.
 
-	x := make([]snode, len(m)+1)
+	x := make([]Node, len(m)+1)
 
 	i = 0
 	for _, k := range keys {
-		x[i] = snode{index: k, value: m[k]}
+		x[i] = Node{Index: k, Value: m[k]}
 		i++
 	}
-	x[i] = snode{index: -1}
+	x[i] = Node{Index: -1}
 
 	return x
 }
 
-func SnodeToMap(x []snode) map[int]float64 {
+func SnodeToMap(x []Node) map[int]float64 {
 
 	m := make(map[int]float64)
 
-	for i := 0; x[i].index != -1; i++ {
-		m[x[i].index] = x[i].value
+	for i := 0; x[i].Index != -1; i++ {
+		m[x[i].Index] = x[i].Value
 	}
 
 	return m
@@ -141,19 +141,19 @@ func getTestFileName(file string) string {
 	return strings.Join(test_file, "")
 }
 
-func dumpSnode(msg string, px []snode) {
+func dumpSnode(msg string, px []Node) {
 	fmt.Print(msg)
-	for i := 0; px[i].index != -1; i++ {
-		fmt.Printf("%d:%g ", px[i].index, px[i].value)
+	for i := 0; px[i].Index != -1; i++ {
+		fmt.Printf("%d:%g ", px[i].Index, px[i].Value)
 	}
 	fmt.Println("")
 }
 
-func printSpace(x []int, x_space []snode) {
+func printSpace(x []int, x_space []Node) {
 	for idx, i := range x {
 		fmt.Printf("x[%d]=%d: ", idx, i)
-		for x_space[i].index != -1 {
-			fmt.Printf("%d:%g ", x_space[i].index, x_space[i].value)
+		for x_space[i].Index != -1 {
+			fmt.Printf("%d:%g ", x_space[i].Index, x_space[i].Value)
 			i++
 		}
 		fmt.Printf("\n")

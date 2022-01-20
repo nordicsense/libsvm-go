@@ -109,9 +109,9 @@ func (model *Model) Dump(file string) error {
 		if model.param.KernelType == PRECOMPUTED {
 			output = append(output, fmt.Sprintf("0:%d ", model.svSpace[i_idx]))
 		} else {
-			for model.svSpace[i_idx].index != -1 {
-				index := model.svSpace[i_idx].index
-				value := model.svSpace[i_idx].value
+			for model.svSpace[i_idx].Index != -1 {
+				index := model.svSpace[i_idx].Index
+				value := model.svSpace[i_idx].Value
 				output = append(output, fmt.Sprintf("%d:%.8g ", index, value))
 				i_idx++
 			}
@@ -326,15 +326,15 @@ func (model *Model) ReadModel(file string) error {
 				var index int
 				var value float64
 				if index, err = strconv.Atoi(node[0]); err != nil {
-					return fmt.Errorf("Fail to parse index from token %v\n", token)
+					return fmt.Errorf("Fail to parse Index from token %v\n", token)
 				}
 				if value, err = strconv.ParseFloat(node[1], 64); err != nil {
-					return fmt.Errorf("Fail to parse value from token %v\n", token)
+					return fmt.Errorf("Fail to parse Value from token %v\n", token)
 				}
-				model.svSpace = append(model.svSpace, snode{index: index, value: value})
+				model.svSpace = append(model.svSpace, Node{Index: index, Value: value})
 			}
 		}
-		model.svSpace = append(model.svSpace, snode{index: -1})
+		model.svSpace = append(model.svSpace, Node{Index: -1})
 		i++
 	}
 

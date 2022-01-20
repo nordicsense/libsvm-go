@@ -32,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	prob, err := libSvm.NewProblem(testFile, param) // create a problem type
+	prob, err := libSvm.NewProblemFromFile(testFile, param) // create a problem type
 	if err != nil {
 		fmt.Fprint(os.Stderr, "Fail to create a problem type:", err)
 		os.Exit(1)

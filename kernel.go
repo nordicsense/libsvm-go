@@ -33,17 +33,17 @@ type kernelFunction interface {
 /**
 Returns the dot product of SVs px and py
 */
-func dot(px, py []snode) float64 {
+func dot(px, py []Node) float64 {
 	var sum float64 = 0
 	var i int = 0
 	var j int = 0
-	for px[i].index != -1 && py[j].index != -1 {
-		if px[i].index == py[j].index {
-			sum = sum + px[i].value*py[j].value
+	for px[i].Index != -1 && py[j].Index != -1 {
+		if px[i].Index == py[j].Index {
+			sum = sum + px[i].Value*py[j].Value
 			i++
 			j++
 		} else {
-			if px[i].index > py[j].index {
+			if px[i].Index > py[j].Index {
 				j++
 			} else {
 				i++
@@ -56,7 +56,7 @@ func dot(px, py []snode) float64 {
 /********** LINEAR KERNEL ***************/
 type linear struct {
 	x      []int
-	xSpace []snode
+	xSpace []Node
 }
 
 func (k linear) compute(i, j int) float64 {
@@ -65,14 +65,14 @@ func (k linear) compute(i, j int) float64 {
 	return dot(k.xSpace[idx_i:], k.xSpace[idx_j:])
 }
 
-func newLinear(x []int, xSpace []snode) linear {
+func newLinear(x []int, xSpace []Node) linear {
 	return linear{x: x, xSpace: xSpace}
 }
 
 /************** RBF KERNEL ***************/
 type rbf struct {
 	x        []int
-	xSpace   []snode
+	xSpace   []Node
 	x_square []float64
 	gamma    float64
 }
@@ -84,7 +84,7 @@ func (k rbf) compute(i, j int) float64 {
 	return math.Exp(-k.gamma * q)
 }
 
-func newRBF(x []int, xSpace []snode, l int, gamma float64) rbf {
+func newRBF(x []int, xSpace []Node, l int, gamma float64) rbf {
 	x_square := make([]float64, l)
 
 	for i := 0; i < l; i++ {
@@ -98,7 +98,7 @@ func newRBF(x []int, xSpace []snode, l int, gamma float64) rbf {
 /***************** POLY KERNEL *************/
 type poly struct {
 	x      []int
-	xSpace []snode
+	xSpace []Node
 	gamma  float64
 	coef0  float64
 	degree int
@@ -111,14 +111,14 @@ func (k poly) compute(i, j int) float64 {
 	return math.Pow(q, float64(k.degree))
 }
 
-func newPoly(x []int, xSpace []snode, gamma, coef0 float64, degree int) poly {
+func newPoly(x []int, xSpace []Node, gamma, coef0 float64, degree int) poly {
 	return poly{x: x, xSpace: xSpace, gamma: gamma, coef0: coef0, degree: degree}
 }
 
 /*************** SIGMOID KERNEL *************/
 type sigmoid struct {
 	x      []int
-	xSpace []snode
+	xSpace []Node
 	gamma  float64
 	coef0  float64
 }
@@ -130,7 +130,7 @@ func (k sigmoid) compute(i, j int) float64 {
 	return math.Tanh(q)
 }
 
-func newSigmoid(x []int, xSpace []snode, gamma, coef0 float64) sigmoid {
+func newSigmoid(x []int, xSpace []Node, gamma, coef0 float64) sigmoid {
 	return sigmoid{x: x, xSpace: xSpace, gamma: gamma, coef0: coef0}
 }
 
@@ -149,7 +149,7 @@ func newKernel(prob *Problem, param *Parameter) (kernelFunction, error) {
 	return nil, errors.New("unsupported kernel")
 }
 
-func computeKernelValue(px, py []snode, param *Parameter) float64 {
+func computeKernelValue(px, py []Node, param *Parameter) float64 {
 	switch param.KernelType {
 	case LINEAR:
 		return dot(px, py)
@@ -163,8 +163,8 @@ func computeKernelValue(px, py []snode, param *Parameter) float64 {
 		q := param.Gamma*dot(px, py) + param.Coef0
 		return math.Tanh(q)
 	case PRECOMPUTED:
-		var idx_j int = int(py[0].value)
-		return px[idx_j].value
+		var idx_j int = int(py[0].Value)
+		return px[idx_j].Value
 	}
 
 	return 0

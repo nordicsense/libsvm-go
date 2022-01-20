@@ -26,20 +26,102 @@ import (
 	"strings"
 )
 
-type snode struct {
-	index int     // dimension (-1 indicates end of SV)
-	value float64 // coeff
+var endOfSV = Node{Index: -1}
+
+type Node struct {
+	Index int     // dimension (-1 indicates end of SV)
+	Value float64 // coeff
+}
+
+type SV struct {
+	Label float64
+	Nodes []Node
+}
+
+func NewSV(l float64, nn ...Node) (SV, error) {
+	idxs := make(map[int]bool)
+	res := SV{Label: l}
+	for _, n := range nn {
+		if ok := idxs[n.Index]; ok {
+			return SV{}, fmt.Errorf("duplicate entry with index %d", n.Index)
+		}
+		if n.Index < 1 {
+			return SV{}, fmt.Errorf("expected a strictly positive index, found %d", n.Index)
+		}
+		res.Nodes = append(res.Nodes, n)
+	}
+	return res, nil
+}
+
+func NewDenseSV(l float64, vv ...float64) SV {
+	res := SV{Label: l}
+	for i, v := range vv {
+		res.Nodes = append(res.Nodes, Node{Index: i + 1, Value: v})
+	}
+	return res
 }
 
 type Problem struct {
 	l      int       // #SVs
 	y      []float64 // labels
 	x      []int     // starting indices in xSpace defining SVs
-	xSpace []snode   // SV coeffs
+	xSpace []Node    // SV coeffs
 	i      int       // counter for iterator
 }
 
-func NewProblem(file string, param *Parameter) (*Problem, error) {
+func NewProblem(svs []SV) (*Problem, error) {
+	indx := make(map[int]bool)
+	maxIndex := 0
+	res := &Problem{l: len(svs)}
+	if len(svs) == 0 {
+		return res, nil
+	}
+	for _, sv := range svs {
+		res.x = append(res.x, len(res.xSpace))
+		res.y = append(res.y, sv.Label)
+		res.xSpace = append(res.xSpace, sv.Nodes...)
+		res.xSpace = append(res.xSpace, endOfSV)
+		for _, n := range sv.Nodes {
+			indx[n.Index] = true
+			if n.Index > maxIndex { // assuming strictly positive
+				maxIndex = n.Index
+			}
+		}
+	}
+	if maxIndex < 1 {
+		return nil, fmt.Errorf("no data in the model")
+	}
+	for i := 1; i <= maxIndex; i++ {
+		if !indx[i] {
+			return nil, fmt.Errorf("missing data for index %d in the %d-dimensional space", i, maxIndex)
+		}
+	}
+	return res, nil
+}
+
+func NewDenseProblem(x [][]float64, y []float64) (*Problem, error) {
+	res := &Problem{l: len(y), y: make([]float64, len(y))}
+	if len(x) != len(y) {
+		return nil, fmt.Errorf("dimensionality mismatch between data and labels")
+	}
+	if len(x) == 0 {
+		return res, nil
+	}
+	if len(x[0]) == 0 {
+		return nil, fmt.Errorf("missing model data")
+	}
+	copy(res.y, y)
+	for _, sv := range x {
+		res.x = append(res.x, len(res.xSpace))
+		for i, v := range sv {
+			res.xSpace = append(res.xSpace, Node{Index: i + 1, Value: v})
+		}
+		res.xSpace = append(res.xSpace, endOfSV)
+	}
+	return res, nil
+}
+
+func NewProblemFromFile(file string, param *Parameter) (*Problem, error) {
 	prob := &Problem{l: 0, i: 0}
 	err := prob.Read(file, param)
 	return prob, err
@@ -85,12 +167,12 @@ func (problem *Problem) Read(file string, param *Parameter) error { // reads the
 					var index int
 					var value float64
 					if index, err = strconv.Atoi(node[0]); err != nil {
-						return fmt.Errorf("Fail to parse index from token %v\n", w)
+						return fmt.Errorf("Fail to parse Index from token %v\n", w)
 					}
 					if value, err = strconv.ParseFloat(node[1], 64); err != nil {
-						return fmt.Errorf("Fail to parse value from token %v\n", w)
+						return fmt.Errorf("Fail to parse Value from token %v\n", w)
 					}
-					problem.xSpace = append(problem.xSpace, snode{index: index, value: value})
+					problem.xSpace = append(problem.xSpace, Node{Index: index, Value: value})
 					if index > max_idx {
 						max_idx = index
 					}
@@ -99,7 +181,7 @@ func (problem *Problem) Read(file string, param *Parameter) error { // reads the
 			}
 		}
 
-		problem.xSpace = append(problem.xSpace, snode{index: -1})
+		problem.xSpace = append(problem.xSpace, endOfSV)
 		l++
 	}
 	problem.l = l

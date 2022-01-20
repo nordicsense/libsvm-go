@@ -27,7 +27,7 @@ func main() {
 	param := libSvm.NewParameter()                      // create a parameter type
 	nrFold, trainFile, modelFile := parseOptions(param) // parse command-line flags for SVM parameter
 
-	prob, err := libSvm.NewProblem(trainFile, param) // create a problem type from the train file and the parameter
+	prob, err := libSvm.NewProblemFromFile(trainFile, param) // create a problem type from the train file and the parameter
 	if err != nil {
 		fmt.Fprint(os.Stderr, "Fail to create a libSvm.Problem: ", err)
 		os.Exit(1)
