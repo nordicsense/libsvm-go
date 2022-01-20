@@ -38,10 +38,17 @@ package libSvm
 
 */
 func (model Model) PredictValues(x map[int]float64) (returnValue float64, decisionValues []float64) {
-	returnValue = 0
+	return model.PredictVectorValues(MapToSnode(x))
+}
 
-	px := MapToSnode(x)
+func (model Model) PredictVector(px []Node) float64 {
+	res, _ := model.PredictVectorValues(px)
+	return res
+}
 
+func (model Model) PredictVectorValues(nodes []Node) (returnValue float64, decisionValues []float64) {
+	px := append(nodes, endOfSV)
+	returnValue = 0.
 	switch model.param.SvmType {
 	case ONE_CLASS, EPSILON_SVR, NU_SVR:
 		var svCoef []float64 = model.svCoef[0]

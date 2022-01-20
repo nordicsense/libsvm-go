@@ -78,15 +78,11 @@ func MapToSnode(m map[int]float64) []Node {
 	sort.Ints(keys) // We MUST do this to ensure that we add snodes in ascending key order!
 	// Just iterating over the map does not ensure the keys are returned in ascending order.
 
-	x := make([]Node, len(m)+1)
+	x := make([]Node, len(m))
 
-	i = 0
-	for _, k := range keys {
+	for i, k := range keys {
 		x[i] = Node{Index: k, Value: m[k]}
-		i++
 	}
-	x[i] = Node{Index: -1}
-
 	return x
 }
 
