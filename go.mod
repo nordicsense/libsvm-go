@@ -1,3 +1,3 @@
-module github.com/ewalker544/libsvm-go
+module github.com/nordicsense/libsvm-go
 
 go 1.15

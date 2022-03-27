@@ -20,10 +20,7 @@ package libSvm
 
 import (
 	"bufio"
-	"fmt"
-	"os"
 	"sort"
-	"strings"
 )
 
 const TAU float64 = 1e-12
@@ -113,64 +110,4 @@ func readline(r *bufio.Reader) (string, error) {
 		ln = append(ln, line...)
 	}
 	return string(ln), err
-}
-
-// Mostly for Debugging
-func getModelFileName(file string) string {
-	var model_file []string
-	model_file = append(model_file, file)
-	model_file = append(model_file, ".model")
-	return strings.Join(model_file, "")
-}
-
-func getTrainFileName(file string) string {
-	var train_file []string
-	train_file = append(train_file, file)
-	train_file = append(train_file, ".train")
-	return strings.Join(train_file, "")
-}
-
-func getTestFileName(file string) string {
-	var test_file []string
-	test_file = append(test_file, file)
-	test_file = append(test_file, ".test")
-	return strings.Join(test_file, "")
-}
-
-func dumpSnode(msg string, px []Node) {
-	fmt.Print(msg)
-	for i := 0; px[i].Index != -1; i++ {
-		fmt.Printf("%d:%g ", px[i].Index, px[i].Value)
-	}
-	fmt.Println("")
-}
-
-func printSpace(x []int, x_space []Node) {
-	for idx, i := range x {
-		fmt.Printf("x[%d]=%d: ", idx, i)
-		for x_space[i].Index != -1 {
-			fmt.Printf("%d:%g ", x_space[i].Index, x_space[i].Value)
-			i++
-		}
-		fmt.Printf("\n")
-	}
-	os.Exit(0)
-}
-
-func dump(g []float64) {
-	for i, v := range g {
-		fmt.Printf("[%d]=%g\n", i, v)
-	}
-	os.Exit(0)
-}
-
-/**
- * simple predictable random number generator in rang
- */
-var nSeedi int = 1
-
-func randIntn(rang int) int {
-	nSeedi = (7 * nSeedi) % 11
-	p := float64(nSeedi) / 11.0
-	return int(p * float64(rang))
 }
