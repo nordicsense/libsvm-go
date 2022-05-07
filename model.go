@@ -43,11 +43,11 @@ func NewModel(param *Parameter) *Model {
 	return &Model{param: param}
 }
 
-func NewModelFromFile(file string) *Model {
+func NewModelFromFile(file string) (*Model, error) {
 	param := NewParameter()
 	model := NewModel(param)
-	model.ReadModel(file)
-	return model
+	err := model.ReadModel(file)
+	return model, err
 }
 
 func (model Model) NrClass() int {
